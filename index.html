@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>부드러운 숲속 타이머</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 245, 205, 0.85), transparent 28%),
+        radial-gradient(circle at 80% 10%, rgba(255, 215, 230, 0.65), transparent 25%),
+        linear-gradient(180deg, #bfe7df 0%, #eaf7d9 52%, #f9e7c2 100%);
+    }
+
+    .sky {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255,255,255,0.75);
+      border-radius: 999px;
+      filter: blur(1px);
+      animation: float 18s ease-in-out infinite;
+    }
+
+    .cloud:before, .cloud:after {
+      content: "";
+      position: absolute;
+      background: rgba(255,255,255,0.78);
+      border-radius: 50%;
+    }
+
+    .cloud.one {
+      width: 180px;
+      height: 55px;
+      top: 12%;
+      left: 9%;
+    }
+
+    .cloud.one:before {
+      width: 75px;
+      height: 75px;
+      left: 22px;
+      top: -32px;
+    }
+
+    .cloud.one:after {
+      width: 95px;
+      height: 95px;
+      right: 20px;
+      top: -45px;
+    }
+
+    .cloud.two {
+      width: 230px;
+      height: 65px;
+      top: 22%;
+      right: 8%;
+      animation-delay: -6s;
+    }
+
+    .cloud.two:before {
+      width: 85px;
+      height: 85px;
+      left: 28px;
+      top: -34px;
+    }
+
+    .cloud.two:after {
+      width: 105px;
+      height: 105px;
+      right: 30px;
+      top: -48px;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-12px) translateX(16px); }
+    }
+
+    .hill {
+      position: absolute;
+      bottom: -90px;
+      width: 120%;
+      height: 270px;
+      border-radius: 50% 50% 0 0;
+      background: linear-gradient(180deg, #8ccf9b, #5da477);
+      z-index: 1;
+      filter: blur(0.2px);
+    }
+
+    .hill.back {
+      bottom: -35px;
+      left: -25%;
+      background: linear-gradient(180deg, #a8dca5, #78b985);
+      opacity: 0.8;
+    }
+
+    .hill.front {
+      right: -20%;
+    }
+
+    .tree {
+      position: absolute;
+      bottom: 95px;
+      width: 90px;
+      height: 140px;
+      z-index: 2;
+      opacity: 0.55;
+    }
+
+    .tree.left { left: 8%; }
+    .tree.right { right: 10%; transform: scale(1.2); }
+
+    .tree .trunk {
+      position: absolute;
+      bottom: 0;
+      left: 39px;
+      width: 16px;
+      height: 65px;
+      background: #8b6f53;
+      border-radius: 12px;
+    }
+
+    .tree .leaf {
+      position: absolute;
+      width: 85px;
+      height: 85px;
+      background: #6bbf8c;
+      border-radius: 48% 52% 46% 54%;
+      top: 0;
+      left: 2px;
+      box-shadow: 0 20px 0 rgba(82, 167, 117, 0.85);
+    }
+
+    .card {
+      position: relative;
+      z-index: 5;
+      width: min(92vw, 430px);
+      padding: 34px 28px 30px;
+      border-radius: 34px;
+      background: rgba(255, 252, 238, 0.82);
+      box-shadow:
+        0 24px 60px rgba(84, 116, 93, 0.25),
+        inset 0 0 0 2px rgba(255,255,255,0.7);
+      backdrop-filter: blur(13px);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.65);
+    }
+
+    .character {
+      width: 108px;
+      height: 108px;
+      margin: 0 auto 10px;
+      position: relative;
+      animation: bob 2.5s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .face {
+      position: absolute;
+      inset: 12px;
+      background: #ffe7aa;
+      border-radius: 48% 52% 50% 50%;
+      box-shadow: inset -8px -10px 0 rgba(238, 176, 96, 0.18);
+    }
+
+    .ear {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #ffdd91;
+      border-radius: 50% 50% 8px 50%;
+      top: 11px;
+    }
+
+    .ear.left { left: 18px; transform: rotate(-28deg); }
+    .ear.right { right: 18px; transform: rotate(118deg); }
+
+    .eye {
+      position: absolute;
+      width: 9px;
+      height: 14px;
+      background: #4f4238;
+      border-radius: 50%;
+      top: 48px;
+    }
+
+    .eye.left { left: 43px; }
+    .eye.right { right: 43px; }
+
+    .cheek {
+      position: absolute;
+      width: 18px;
+      height: 9px;
+      background: rgba(255, 132, 142, 0.35);
+      border-radius: 50%;
+      top: 62px;
+    }
+
+    .cheek.left { left: 30px; }
+    .cheek.right { right: 30px; }
+
+    .mouth {
+      position: absolute;
+      width: 18px;
+      height: 10px;
+      left: 45px;
+      top: 62px;
+      border-bottom: 3px solid #6b5547;
+      border-radius: 0 0 20px 20px;
+    }
+
+    h1 {
+      margin: 8px 0 6px;
+      font-size: 25px;
+      color: #4f6447;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: #768365;
+      font-size: 14px;
+    }
+
+    .timer {
+      font-size: 62px;
+      font-weight: 800;
+      color: #41543c;
+      letter-spacing: 1px;
+      margin: 12px 0 20px;
+      text-shadow: 0 3px 0 rgba(255,255,255,0.75);
+    }
+
+    .setters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 10px 0 18px;
+    }
+
+    .unit {
+      background: rgba(255,255,255,0.52);
+      border-radius: 24px;
+      padding: 13px 10px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7);
+    }
+
+    .unit-title {
+      color: #70815f;
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .unit-value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #43573d;
+      margin: 4px 0;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    .small-btns {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .updown {
+      width: 42px;
+      height: 34px;
+      border-radius: 14px;
+      background: #f7c878;
+      color: #5d4329;
+      font-weight: 900;
+      font-size: 19px;
+      box-shadow: 0 4px 0 #dca95e;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .action {
+      padding: 14px 0;
+      border-radius: 18px;
+      font-weight: 800;
+      color: #fffdf5;
+      font-size: 15px;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.12);
+    }
+
+    .start { background: #75b985; }
+    .pause { background: #f1b763; }
+    .reset { background: #de8f85; }
+
+    .message {
+      min-height: 24px;
+      margin-top: 16px;
+      color: #6d765d;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .ring {
+      animation: ring 0.38s ease-in-out infinite alternate;
+    }
+
+    @keyframes ring {
+      from { transform: rotate(-1.5deg) scale(1); }
+      to { transform: rotate(1.5deg) scale(1.015); }
+    }
+
+    @media (max-width: 420px) {
+      .timer { font-size: 50px; }
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sky">
+    <div class="cloud one"></div>
+    <div class="cloud two"></div>
+    <div class="tree left">
+      <div class="trunk"></div><div class="leaf"></div>
+    </div>
+    <div class="tree right">
+      <div class="trunk"></div><div class="leaf"></div>
+    </div>
+    <div class="hill back"></div>
+    <div class="hill front"></div>
+  </div>
+
+  <main class="card" id="card">
+    <div class="character">
+      <div class="ear left"></div>
+      <div class="ear right"></div>
+      <div class="face"></div>
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="cheek left"></div>
+      <div class="cheek right"></div>
+      <div class="mouth"></div>
+    </div>
+
+    <h1>숲속 포근 타이머</h1>
+    <p class="subtitle">분·초를 설정하고 시작을 누르세요.</p>
+
+    <div class="timer" id="display">05:00</div>
+
+    <section class="setters">
+      <div class="unit">
+        <div class="unit-title">분</div>
+        <div class="small-btns">
+          <button class="updown" onclick="changeTime('min', 1)">▲</button>
+          <button class="updown" onclick="changeTime('min', -1)">▼</button>
+        </div>
+        <div class="unit-value" id="minutes">5</div>
+      </div>
+
+      <div class="unit">
+        <div class="unit-title">초</div>
+        <div class="small-btns">
+          <button class="updown" onclick="changeTime('sec', 10)">▲</button>
+          <button class="updown" onclick="changeTime('sec', -10)">▼</button>
+        </div>
+        <div class="unit-value" id="seconds">0</div>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button class="action start" onclick="startTimer()">시작</button>
+      <button class="action pause" onclick="pauseTimer()">일시정지</button>
+      <button class="action reset" onclick="resetTimer()">초기화</button>
+    </section>
+
+    <div class="message" id="message">준비 완료!</div>
+  </main>
+
+  <script>
+    let setMinutes = 5;
+    let setSeconds = 0;
+    let remaining = 300;
+    let timerId = null;
+    let running = false;
+
+    const display = document.getElementById("display");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+    const message = document.getElementById("message");
+    const card = document.getElementById("card");
+
+    function totalSetSeconds() {
+      return setMinutes * 60 + setSeconds;
+    }
+
+    function updateDisplay() {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      display.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+      minutesEl.textContent = setMinutes;
+      secondsEl.textContent = setSeconds;
+    }
+
+    function changeTime(unit, amount) {
+      if (running) return;
+
+      if (unit === "min") {
+        setMinutes = Math.max(0, Math.min(180, setMinutes + amount));
+      }
+
+      if (unit === "sec") {
+        let newSec = setSeconds + amount;
+        if (newSec >= 60) {
+          setMinutes = Math.min(180, setMinutes + 1);
+          newSec = 0;
+        }
+        if (newSec < 0) {
+          if (setMinutes > 0) {
+            setMinutes -= 1;
+            newSec = 50;
+          } else {
+            newSec = 0;
+          }
+        }
+        setSeconds = newSec;
+      }
+
+      remaining = totalSetSeconds();
+      card.classList.remove("ring");
+      message.textContent = "설정 시간: " + setMinutes + "분 " + setSeconds + "초";
+      updateDisplay();
+    }
+
+    function startTimer() {
+      if (running) return;
+      if (remaining <= 0) {
+        message.textContent = "1초 이상 설정해 주세요.";
+        return;
+      }
+
+      running = true;
+      card.classList.remove("ring");
+      message.textContent = "타이머가 내려가는 중입니다.";
+
+      timerId = setInterval(() => {
+        remaining -= 1;
+        updateDisplay();
+
+        if (remaining <= 0) {
+          finishTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      running = false;
+      clearInterval(timerId);
+      message.textContent = "잠시 멈췄습니다.";
+    }
+
+    function resetTimer() {
+      running = false;
+      clearInterval(timerId);
+      remaining = totalSetSeconds();
+      card.classList.remove("ring");
+      message.textContent = "다시 준비 완료!";
+      updateDisplay();
+    }
+
+    function finishTimer() {
+      running = false;
+      clearInterval(timerId);
+      remaining = 0;
+      updateDisplay();
+      card.classList.add("ring");
+      message.textContent = "시간이 끝났습니다!";
+
+      playAlarm();
+
+      if ("vibrate" in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 400]);
+      }
+    }
+
+    function playAlarm() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.25);
+        gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + i * 0.25 + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.25 + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.25);
+        osc.stop(ctx.currentTime + i * 0.25 + 0.24);
+      });
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
